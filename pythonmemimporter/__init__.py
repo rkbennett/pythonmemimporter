@@ -38,12 +38,13 @@ class _memimporter(object):
             pass
         return self.module()
 
-    def dlopen(self, data):
+    def dlopen(self, data, mode):
         """
         Description:
             This function returns the address of pythonmemorymodule object once it is loaded
         Args:
             data: raw bytes of module to load
+            mode: currently unused
         Returns:
             Handle to pythonmemorymodule object"""
         self.module = pythonmemorymodule.MemoryModule(data=data)
