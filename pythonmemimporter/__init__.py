@@ -1,5 +1,6 @@
 import sys
 import ctypes
+import time
 import pythonmemorymodule
 
 threedottwelve = (sys.version_info.major == 3 and sys.version_info.minor >= 12)
@@ -48,4 +49,4 @@ class _memimporter(object):
         Returns:
             Handle to pythonmemorymodule object"""
         self.module = pythonmemorymodule.MemoryModule(data=data)
-        return ctypes.addressof(self.module.pythonmemorymodule.contents)
+        return self.module
