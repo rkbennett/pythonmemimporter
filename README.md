@@ -30,10 +30,10 @@ class memory_importer(object):
     def load_module(self, name):
         pass
 
-# Define function which returns bytes of pyd
+# Define function which returns bytes of pyd (in this example the file _psutil_windows.pyd exists in my Downloads directory)
 
 def _get_module_content(file):
-    return open(f'..\\..\\Downloads\\{file}.pyd', "rb").read()
+    return open(f'c:\\users\\user\\Downloads\\{file}.pyd', "rb").read()
 
 # Insert meta hook into meta path
 
