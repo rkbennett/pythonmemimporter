@@ -18,6 +18,7 @@ After spending a decent amount of time looking over the code from _memimporter I
 # Import the requirements
 import sys
 import importlib
+import importlib.util
 from pythonmemimporter import _memimporter
 _memimporter = _memimporter()
 
