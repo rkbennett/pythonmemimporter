@@ -20,7 +20,7 @@ import sys
 import importlib
 from pythonmemimporter import _memimporter
 _memimporter = _memimporter()
-if threedotsix = (sys.version_info.major == 3 and sys.version_info.minor >= 11):
+if (sys.version_info.major == 3 and sys.version_info.minor >= 11):
     import importlib.util
 
 # Create a custom meta hook (required for getting loader assocaited to spec, this example does not work with python 3.12+)
