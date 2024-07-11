@@ -17,27 +17,11 @@ After spending a decent amount of time looking over the code from _memimporter I
 ```python
 # Import the requirements
 import sys
-import ctypes
 import importlib
 from pythonmemimporter import _memimporter
 _memimporter = _memimporter()
 if (sys.version_info.major == 3 and sys.version_info.minor >= 11):
     import importlib.util
-
-threedottwelve = (sys.version_info.major == 3 and sys.version_info.minor >= 12)
-pyversion = f"{sys.version_info.major}.{sys.version_info.minor}"
-
-api_version_table = {
-    "3.10": 1013,
-    "3.11": 1013,
-    "3.12": 1013
-}
-
-PyModule_FromDefAndSpec2 = ctypes.pythonapi.PyModule_FromDefAndSpec2
-PyModule_FromDefAndSpec2.restype = ctypes.py_object
-PyModule_New = ctypes.pythonapi.PyModule_New
-PyModule_New.restype = ctypes.py_object
-PyModule_ExecDef = ctypes.pythonapi.PyModule_ExecDef
 
 # Create a custom meta hook (required for getting loader assocaited to spec, this example does not work with python 3.12+)
 
@@ -59,27 +43,19 @@ sys.meta_path.insert(0, memory_importer())
 
 # Create module in memory from init function
 
-fullname = "test_mod"
+fullname = "_psutil_windows"
 fpath = "/some/fake/path/here"
 spec = importlib.util.find_spec(fullname, fpath)
-initname = "PyInit_test_mod"
+initname = "PyInit__psutil_windows"
 mod = _memimporter.import_module(fullname, fpath, initname, _get_module_content, spec)
 
+# Add module to module cache
 
-if 'moduledef' in f"{mod}":
-    m = PyModule_FromDefAndSpec2(ctypes.c_void_p(id(mod)), ctypes.c_void_p(id(spec)), api_version_table[pyversion])
-    module = PyModule_New(spec.name.encode('utf-8'))
-    result = PyModule_ExecDef(ctypes.py_object(module), ctypes.c_void_p(id(mod)))
-    if result > 0:
-        raise ImportError(f"ExecDef failed for module {spec.name}")
-else:
-    module = mod
-
-sys.modules[module.__name__] = module
+sys.modules[mod.__name__] = mod
 
 # Make module available by module name
 
-exec(f"{module.__name__} = sys.modules['{module.__name__}']")
+exec(f"{mod.__name__} = sys.modules['{mod.__name__}']")
 
 # Profit
 
