@@ -1,27 +1,16 @@
 import sys
 import time
 import ctypes
+import logging
 import pythonmemorymodule
 
 sys.mod_refs = {}
 threedottwelve = (sys.version_info.major == 3 and sys.version_info.minor >= 12)
-pyversion = f"{sys.version_info.major}.{sys.version_info.minor}"
 
-api_version_table = {
-    "3.6": 1060,
-    "3.7": 1070,
-    "3.8": 1080,
-    "3.9": 1090,
-    "3.10": 1013,
-    "3.11": 1013,
-    "3.12": 1013
-}
-
-PyModule_FromDefAndSpec2 = ctypes.pythonapi.PyModule_FromDefAndSpec2
-PyModule_FromDefAndSpec2.restype = ctypes.py_object
 PyModule_New = ctypes.pythonapi.PyModule_New
 PyModule_New.restype = ctypes.py_object
 PyModule_ExecDef = ctypes.pythonapi.PyModule_ExecDef
+Py_IncRef = ctypes.pythonapi.Py_IncRef
 
 class _FuncPtr(ctypes._CFuncPtr):
     """
@@ -60,7 +49,7 @@ class _memimporter(object):
             if spec.name not in sys.mod_refs:
                 sys.mod_refs[spec.name] = {}
                 sys.mod_refs[spec.name]['moduledef'] = mod
-                sys.mod_refs[spec.name]['mod_from_def'] = PyModule_FromDefAndSpec2(ctypes.c_void_p(id(mod)), ctypes.c_void_p(id(spec)), api_version_table[pyversion])
+                Py_IncRef(ctypes.py_object(sys.mod_refs[spec.name]['moduledef']))
                 sys.mod_refs[spec.name]['module'] = PyModule_New(spec.name.encode('utf-8'))
                 result = PyModule_ExecDef(ctypes.py_object(sys.mod_refs[spec.name]['module']), ctypes.c_void_p(id(sys.mod_refs[spec.name]['moduledef'])))
                 if result > 0:
