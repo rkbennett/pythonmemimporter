@@ -1,10 +1,8 @@
 import sys
 import time
 import ctypes
-import logging
 import pythonmemorymodule
 
-sys.mod_refs = {}
 threedottwelve = (sys.version_info.major == 3 and sys.version_info.minor >= 12)
 
 PyModule_New = ctypes.pythonapi.PyModule_New
@@ -46,17 +44,12 @@ class _memimporter(object):
             pass
         mod = self.module()
         if 'moduledef' in f"{mod}":
-            if spec.name not in sys.mod_refs:
-                sys.mod_refs[spec.name] = {}
-                sys.mod_refs[spec.name]['moduledef'] = mod
-                Py_IncRef(ctypes.py_object(sys.mod_refs[spec.name]['moduledef']))
-                sys.mod_refs[spec.name]['module'] = PyModule_New(spec.name.encode('utf-8'))
-                result = PyModule_ExecDef(ctypes.py_object(sys.mod_refs[spec.name]['module']), ctypes.c_void_p(id(sys.mod_refs[spec.name]['moduledef'])))
-                if result > 0:
-                    raise ImportError(f"ExecDef failed for module {spec.name} during multi-phase initialization")
-                mod = sys.mod_refs[spec.name]['module']
-            else:
-                raise ImportError(f"{ spec.name } module already loaded, module available at sys.mod_refs['{spec.name}']['module']")
+            mod_def = mod
+            tmp = Py_IncRef(ctypes.py_object(mod_def))
+            mod = PyModule_New(spec.name.encode('utf-8'))
+            result = PyModule_ExecDef(ctypes.py_object(mod), ctypes.c_void_p(id(mod_def)))
+            if result > 0:
+                raise ImportError(f"ExecDef failed for module {spec.name} during multi-phase initialization")
         return mod
 
     def dlopen(self, data, mode):
