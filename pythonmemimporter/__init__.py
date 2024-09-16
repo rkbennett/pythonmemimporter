@@ -1,7 +1,10 @@
+import os
 import sys
 import time
 import ctypes
-import pythonmemorymodule
+
+if os.name == 'nt':
+    import pythonmemorymodule
 
 threedottwelve = (sys.version_info.major == 3 and sys.version_info.minor >= 12)
 
@@ -35,8 +38,14 @@ class _memimporter(object):
             spec: valid spec for the pyd
         Returns:
             result of an module's init function"""
-        hmem = pythonmemorymodule.MemoryModule(data=findproc(modname))
-        initf = hmem.get_proc_addr(initfuncname)
+        if os.name == 'nt':
+            hmem = pythonmemorymodule.MemoryModule(data=findproc(modname))
+            initf = hmem.get_proc_addr(initfuncname)
+        elif os.name == 'posix':
+            fd = ctypes.CDLL(None).syscall(319, "/tmp/none", 1)
+            os.write(fd, findproc(modname))
+            funcPtr = ctypes.CDLL(f"/proc/self/fd/{ os.listdir('/proc/self/fd')[-2] }")
+            initf = funcPtr.__getitem__(initfuncname)
         self.module = ctypes.cast(initf, _FuncPtr)
         if threedottwelve:
             time.sleep(.01)
@@ -61,5 +70,11 @@ class _memimporter(object):
             mode: currently unused
         Returns:
             Handle to pythonmemorymodule object"""
-        self.module = pythonmemorymodule.MemoryModule(data=data)
+        if os.name == 'nt':
+            self.module = pythonmemorymodule.MemoryModule(data=data)
+        else:
+            fd = ctypes.CDLL(None).syscall(319, "/tmp/none", 1)
+            os.write(fd, data)
+            self.module = ctypes.CDLL(f"/proc/self/fd/{ os.listdir('/proc/self/fd')[-2] }")
+            self.module.__dict__['get_proc_addr'] = self.module.__getattr__
         return self.module
