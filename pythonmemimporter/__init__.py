@@ -74,7 +74,7 @@ class _memimporter(object):
             Handle to pythonmemorymodule object"""
         if os.name == 'nt':
             self.module = pythonmemorymodule.MemoryModule(data=data)
-        else:
+        elif os.name == 'posix':
             fd = ctypes.CDLL(None).syscall(319, "/tmp/none", 1)
             os.write(fd, data)
             self.module = ctypes.CDLL(f"/proc/self/fd/{ fd }")
