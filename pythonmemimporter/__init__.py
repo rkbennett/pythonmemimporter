@@ -5,6 +5,8 @@ import ctypes
 
 if os.name == 'nt':
     import pythonmemorymodule
+elif os.name == 'posix':
+    MEMFD_CREATE_NO = 319
 
 threedottwelve = (sys.version_info.major == 3 and sys.version_info.minor >= 12)
 
@@ -42,9 +44,9 @@ class _memimporter(object):
             hmem = pythonmemorymodule.MemoryModule(data=findproc(modname))
             initf = hmem.get_proc_addr(initfuncname)
         elif os.name == 'posix':
-            fd = ctypes.CDLL(None).syscall(319, "/tmp/none", 1)
+            fd = ctypes.CDLL(None).syscall(MEMFD_CREATE_NO, "/tmp/none", 1)
             os.write(fd, findproc(modname))
-            funcPtr = ctypes.CDLL(f"/proc/self/fd/{ os.listdir('/proc/self/fd')[-2] }")
+            funcPtr = ctypes.CDLL(f"/proc/self/fd/{ fd }")
             initf = funcPtr.__getitem__(initfuncname)
         self.module = ctypes.cast(initf, _FuncPtr)
         if threedottwelve:
@@ -75,6 +77,6 @@ class _memimporter(object):
         else:
             fd = ctypes.CDLL(None).syscall(319, "/tmp/none", 1)
             os.write(fd, data)
-            self.module = ctypes.CDLL(f"/proc/self/fd/{ os.listdir('/proc/self/fd')[-2] }")
+            self.module = ctypes.CDLL(f"/proc/self/fd/{ fd }")
             self.module.__dict__['get_proc_addr'] = self.module.__getattr__
         return self.module
