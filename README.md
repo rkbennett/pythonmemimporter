@@ -79,5 +79,6 @@ memorymodule = _memimporter.dlopen(data, 0)
 
 ## Special Thanks
 
-* [naksyn](https://github.com/naksyn) - For pythonmemorymodule
+* [naksyn](https://github.com/naksyn) - For pythonmemorymodule (Windows)
+* [nullbites](https://github.com/nullbites) - For his fd technique of loading shared objects (Linux)
 
