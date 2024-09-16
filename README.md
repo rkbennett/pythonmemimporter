@@ -75,7 +75,7 @@ memorymodule = _memimporter.dlopen(data, 0)
 
 * This is a POC and has some ISMs to it, for instance on python3.12 I could only get the code to not crash by adding a sleep of .01 (I personally don't like this tactic) I assume because of some form of race condition
 * Currently, after importing some pyds and trying to execute them, the python interpreter will still crash. I've seen this on my pyclrhost package, though I'll also say that my pyclrhost package isn't a normal package.
-* This has currently only been tested on windows 10 and 11 with python 3.10-3.12, but in theory should work on any version 3.6+
+* This has currently only been tested on ubuntu 22.04, windows 10 and 11 with python 3.10-3.12, but in theory should work on any version 3.6+
 
 ## Special Thanks
 
